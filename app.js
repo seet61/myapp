@@ -5,6 +5,9 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mustacheExpress = require('mustache-express');
+var mongoose = require("mongoose")
+var session = require('express-session');
+var MongoStore = require('connect-mongo')(session);
 
 var index = require('./routes/index');
 var users = require('./routes/users');
@@ -23,6 +26,16 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(session({
+  secret: 'i need more beers',
+  resave: false,
+  saveUnintialized: false,
+  //Место хранения сессий
+  store: new MongoStore({
+    url: "mongodb://" + config.get('User.dbConfig.host') + ":" + config.get('User.dbConfig.port') + "/serssions"
+  })
+}));
 
 app.use('/', index);
 app.use('/users', users);
